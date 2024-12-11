@@ -1,0 +1,28 @@
+# Node.js modules
+node_modules/
+
+# Environnement
+.env
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Cache
+.cache/
+dist/
+
+# Systèmes d'exploitation
+.DS_Store   # macOS
+Thumbs.db   # Windows
+
+# IDE et éditeurs
+.vscode/
+.idea/
+
+# Déploiement
+package-lock.json
+*.pem  # Clés privées (si tu en utilises pour SSH, API, etc.)
