@@ -97,9 +97,8 @@ const loginDeveloper = async (req, res) => {
 
 const updateDeveloperProfile = async (req, res) => {
   try {
-    const developer = await Developer.findById(req.developer.id);
-    console.log (developer)
-
+    const developer = await Developer.findById(req.userId);
+    console.log (req.userId) ;
     if (developer) {
       const {
         name,
@@ -123,19 +122,11 @@ const updateDeveloperProfile = async (req, res) => {
       if (name) developer.name = name;
       if (jobTitle) developer.jobTitle = jobTitle;
       if (globalExperience) developer.globalExperience = globalExperience;
-      if (workPreference) developer.workPreference = workPreference;
       if (availability) developer.availability = availability;
       if (salaryExpectation) developer.salaryExpectation = salaryExpectation;
-      if (programmingLanguages) developer.programmingLanguages = programmingLanguages;
-      if (frameworks) developer.frameworks = frameworks;
-      if (versioningTools) developer.versioningTools = versioningTools;
-      if (projectManagementTools) developer.projectManagementTools = projectManagementTools;
-      if (portfolioLink) developer.portfolioLink = portfolioLink;
-      if (projects) developer.projects = projects;
-      if (bio) developer.bio = bio;
       if (careerGoals) developer.careerGoals = careerGoals;
       if (preferredEnvironment) developer.preferredEnvironment = preferredEnvironment;
-      if (country) developer.country = country;
+      if (bio) developer.bio = bio;
 
       const updatedDeveloper = await developer.save();
 
@@ -147,7 +138,25 @@ const updateDeveloperProfile = async (req, res) => {
       });
     } else {
       res.status(404).json({ message: 'Développeur non trouvé.' });
-      console.log(error)
+      console.log (req.userId) ;
+
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+    console.log('Update error:', error.message);
+  }
+};
+
+
+const deleteDeveloperAccount = async (req, res) => {
+  try {
+    const developer = await Developer.findById(req.developer.id);
+
+    if (developer) {
+      await developer.remove();
+      res.status(200).json({ message: 'Compte développeur supprimé avec succès.' });
+    } else {
+      res.status(404).json({ message: 'Développeur non trouvé.' });
     }
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -155,5 +164,44 @@ const updateDeveloperProfile = async (req, res) => {
 };
 
 
+const addProjectToPortfolio = async (req, res) => {
+  const { projectName, description, technologiesUsed, demoLink } = req.body;
 
-module.exports = { createDeveloper , loginDeveloper , updateDeveloperProfile};
+  // Validation des champs requis
+  if (!projectName || !description || !technologiesUsed) {
+    return res.status(400).json({ message: 'Tous les champs obligatoires doivent être remplis.' });
+  }
+
+  try {
+    const developer = await Developer.findById(req.userId);
+
+    if (!developer) {
+      return res.status(404).json({ message: 'Développeur non trouvé.' });
+    }
+
+    // Création du nouveau projet
+    const newProject = {
+      projectName,
+      description,
+      technologiesUsed,
+      demoLink: demoLink || null,
+    };
+
+    // Ajout du projet au portfolio
+    developer.projects.push(newProject);
+    await developer.save();
+
+    res.status(201).json({
+      message: 'Projet ajouté au portfolio avec succès.',
+      project: newProject,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+    console.log(req.developer.id);
+  }
+};
+
+
+
+
+module.exports = { createDeveloper , loginDeveloper , updateDeveloperProfile , deleteDeveloperAccount , addProjectToPortfolio};

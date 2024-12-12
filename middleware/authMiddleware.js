@@ -10,14 +10,11 @@ const protect = async (req, res, next) => {
 
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      console.log('Token decoded:', decoded);  // Debug
-      req.developer = await Developer.findById(decoded.id);
+      console.log('Decoded token:', decoded);
 
-      if (req.developer) {
-        return next();
-      } else {
-        return res.status(404).json({ message: 'Développeur non trouvé.' });
-      }
+      // Ajoute l'ID extrait manuellement dans req.userId
+      req.userId = decoded.id;
+      return next();
     } catch (error) {
       console.error('Token error:', error.message);
       return res.status(401).json({ message: 'Token invalide ou expiré.' });
